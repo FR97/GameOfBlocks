@@ -8,12 +8,15 @@ namespace Assets.Scripts
 
         public void Start()
         {
-            LoadTextures();
+            LoadTextures(128);
         }
 
+        public static Texture2DArray LoadedTextures;
 
-        public static void LoadTextures()
+        public static void LoadTextures(int texturePixelSize)
         {
+            
+            //Texture2DArray LoadedTextures = new Texture2DArray();
 
             Texture2D test = LoadTexture(@".\Assets\Resources\Textures\Blocks\dirt.png");
             Color[] pixels = test.GetPixels();
@@ -26,7 +29,7 @@ namespace Assets.Scripts
         /// </summary>
         /// <param name="FilePath">Path to file</param>
         /// <returns>Texture2D made from file</returns>
-        private static Texture2D LoadTexture(string filePath)
+        public static Texture2D LoadTexture(string filePath)
         {
 
             Debug.Log(filePath);
