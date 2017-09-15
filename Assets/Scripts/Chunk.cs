@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = System.Random;
+using Random = UnityEngine.Random;
+
 
 namespace Assets.Scripts
 {
@@ -20,18 +21,35 @@ namespace Assets.Scripts
 
         private List<int> _triangles;
 
-        public byte Width;
-        public byte Height;
-        public byte Depth;
+        public byte Width = 0;
+        public byte Height = 0;
+        public byte Depth = 0;
 
         public int ChunkStartPositionX;
         public int ChunkStartPositionZ;
+
+        public float TerrainDetail;
+
+        
         /// <summary>
         /// Representation of 
         /// </summary>
         private short[,,] _chunkBlocks;
 
-        private GameObject player;
+        public Chunk()
+        {
+            
+        }
+
+        public Chunk(int chunkStartPositionX, int chunkStartPositionZ, float terrainDetail)
+        {
+            ChunkStartPositionX = chunkStartPositionX;
+            ChunkStartPositionZ = chunkStartPositionZ;
+            TerrainDetail = terrainDetail;
+            Start();
+        }
+
+        public int Seed = 303020;
 
         // Use this for initialization
         void Start () {
@@ -47,8 +65,10 @@ namespace Assets.Scripts
             _vertices = new List<Vector3>();
             _triangles = new List<int>();
 
-            player = GameObject.Find("FPSController");
+            //Seed = Random.Range(100000, 999999);
+
            
+
 
             GenerateChunk();
             UpdateMesh();
@@ -56,18 +76,18 @@ namespace Assets.Scripts
 
         void GenerateChunk()
         {
-            Random r = new Random();
-            
+
+            Seed +=(int)(this.transform.position.x+this.transform.position.z);
             for (byte y = 0; y < Height; y++)
             {
                 for (byte x = 0; x < Width; x++)
                 {
                     for (byte z = 0; z < Depth; z++)
                     {
-
-                        short k =(short) r.Next(0,2);
-                        // Only solid blocks for now.
-                        _chunkBlocks[x, y, z] = k;
+                        byte topY = (byte) (Mathf.PerlinNoise((x/4+Seed)/TerrainDetail, (z / 4 + Seed) / TerrainDetail) * Height);
+                        //Debug.Log(topY);
+                        if (y <= topY)
+                            _chunkBlocks[x, y, z] = 1;
 
                     }
                 }
@@ -80,7 +100,7 @@ namespace Assets.Scripts
                     {
                         if(_chunkBlocks[x, y, z] > 0)
                             PlaceBlock(x, y, z, 1);
-
+                        
                     }
                 }
             }
@@ -137,7 +157,7 @@ namespace Assets.Scripts
 
         void Update()
         {
-            //Debug.Log(player.transform.position);
+            
         }
 
         void UpdateMesh()
