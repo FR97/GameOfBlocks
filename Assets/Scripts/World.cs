@@ -28,12 +28,12 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start ()
         { 
-           // Spiral(5,5);
+           
             if (Seed == 0)
                 Seed = Random.Range(100000, 999999);
 
             _player = GameObject.Find("FPSController");
-            //_player.transform.position = new Vector3(Random.Range(-16000, 16000), 129 ,Random.Range(-16000, 16000));           
+            _player.transform.position = new Vector3(Random.Range(-16000, 16000), 129 ,Random.Range(-16000, 16000));           
             _lastPlayerPosition = new Position((int)_player.transform.position.x, (int)_player.transform.position.y, (int)_player.transform.position.z);
             _chunks = new Dictionary<Position, Chunk>();
 
@@ -41,27 +41,28 @@ namespace Assets.Scripts
             _lastPlayerPosition.Y = (int)_player.transform.position.y;
             _lastPlayerPosition.Z = (int)_player.transform.position.z;
 
-            int centralChunkPosX = (int)_lastPlayerPosition.X;
-            int centralChunkPosZ = (int)_lastPlayerPosition.Z;
-            while (centralChunkPosX % 16 != 0)
-            {
-                if (centralChunkPosX > 0)
-                    centralChunkPosX--;
-                else if (centralChunkPosX < 0)
-                    centralChunkPosX++;
-            }
-            while (centralChunkPosZ % 16 != 0)
-            {
-                if (centralChunkPosZ > 0)
-                    centralChunkPosZ--;
-                else if (centralChunkPosZ < 0)
-                    centralChunkPosZ++;
-            }
+            _lastCentralChunkPosition = new Position(-1, -1, -1);
+
+            int centralChunkPosX = CalculateChunkStartPosition((int)_lastPlayerPosition.X);
+            int centralChunkPosZ = CalculateChunkStartPosition((int)_lastPlayerPosition.Z);
+ 
             if (ShouldGenerateChunks(centralChunkPosX, centralChunkPosZ))
                 GenerateChunks(centralChunkPosX, centralChunkPosZ);
 
         }
-	    
+
+        int CalculateChunkStartPosition(int playerPositionOnAxis)
+        {
+            while (playerPositionOnAxis % 16 != 0)
+            {
+                if (playerPositionOnAxis > 0)
+                    playerPositionOnAxis--;
+                else if (playerPositionOnAxis < 0)
+                    playerPositionOnAxis++;
+            }
+            return playerPositionOnAxis;
+        }
+
         // Update is called once per frame
         void Update () {
             if (_lastPlayerPosition.X != (int)_player.transform.position.x ||
@@ -72,24 +73,15 @@ namespace Assets.Scripts
                 _lastPlayerPosition.Y = (int)_player.transform.position.y;
                 _lastPlayerPosition.Z = (int)_player.transform.position.z;
 
-                int centralChunkPosX = (int)_lastPlayerPosition.X;
-                int centralChunkPosZ = (int)_lastPlayerPosition.Z;
-                while (centralChunkPosX % 16 != 0)
+                int centralChunkPosX = CalculateChunkStartPosition((int)_lastPlayerPosition.X);
+                int centralChunkPosZ = CalculateChunkStartPosition((int)_lastPlayerPosition.Z);
+
+                if (ShouldGenerateChunks(centralChunkPosX, centralChunkPosZ))
                 {
-                    if (centralChunkPosX > 0)
-                        centralChunkPosX--;
-                    else if (centralChunkPosX < 0)
-                        centralChunkPosX++;
-                }
-                while (centralChunkPosZ % 16 != 0)
-                {
-                    if (centralChunkPosZ > 0)
-                        centralChunkPosZ--;
-                    else if (centralChunkPosZ < 0)
-                        centralChunkPosZ++;
-                }
-                if(ShouldGenerateChunks(centralChunkPosX, centralChunkPosZ))
                     GenerateChunks(centralChunkPosX, centralChunkPosZ);
+                   
+                }
+                   
             }
         }
 
@@ -97,77 +89,72 @@ namespace Assets.Scripts
 
         bool ShouldGenerateChunks(int centralChunkPosX, int centralChunkPosZ)
         {
-            Debug.Log("CCP: " + centralChunkPosX + "  " + centralChunkPosZ);
-            
-            if (_lastCentralChunkPosition == null)
-            {
-                _lastCentralChunkPosition = new Position(centralChunkPosX, 0, centralChunkPosX);
-                Debug.Log("LCCP: " + _lastCentralChunkPosition.X + "  " + _lastCentralChunkPosition.Z);
-                return true;
-            }
+                
             if (_lastCentralChunkPosition.X != centralChunkPosX || _lastCentralChunkPosition.Z != centralChunkPosZ)
             {
-                _lastCentralChunkPosition.X = centralChunkPosX;
-                _lastCentralChunkPosition.Z = centralChunkPosZ;
-                Debug.Log("LCCP: " + _lastCentralChunkPosition.X + "  " + _lastCentralChunkPosition.Z);
+                _lastCentralChunkPosition = new Position(centralChunkPosX, 0, centralChunkPosX);
                 return true;
             }
+
             return false;
         }
-        void Spiral(int X, int Y)
-        {
-            int x, y, dx, dy;
-            x = y = dx = 0;
-            dy = -1;
-            int t = Mathf.Max(X, Y);
-            int maxI = t * t;
-            for (int i = 0; i < maxI; i++)
-            {
-                if ((-X / 2 <= x) && (x <= X / 2) && (-Y / 2 <= y) && (y <= Y / 2))
-                {
-                   
-                }
-                if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y)))
-                {
-                    t = dx;
-                    dx = -dy;
-                    dy = t;
-                }
-                x += dx;
-                y += dy;
-            }
-        }
+
+
         void GenerateChunks(int centralChunkPosX, int centralChunkPosZ)
         {
-            int x, y, dx, dy;
-            x = y = dx = 0;
-            dy = -1;
+            int x, z, dx, dz;
+            x = z = dx = 0;
+            dz = -1;
             int totalChunkViewDistance = ChunkViewDistance * 2 + 1;
             int t = totalChunkViewDistance;
-            Debug.Log("T " + t);
+            
             int maxI = t * t;
             for (int i = 0; i < maxI; i++)
             {
-                if ((-totalChunkViewDistance / 2 <= x) && (x <= totalChunkViewDistance / 2) && (-totalChunkViewDistance / 2 <= y) && (y <= totalChunkViewDistance / 2))
+                if ((-totalChunkViewDistance / 2 <= x) && (x <= totalChunkViewDistance / 2) && (-totalChunkViewDistance / 2 <= z) && (z <= totalChunkViewDistance / 2))
                 {
-                    _chunks.Add(new Position(x, 0, y), Instantiate(ChunkProtype, new Vector3(centralChunkPosX + 16*x, 0, centralChunkPosZ + 16*y), Quaternion.identity, this.transform));
+                    Position pos = new Position(x, 0, z);
+                    if (!_chunks.ContainsKey(pos))
+                    {
+                        _chunks.Add(pos,
+                            Instantiate(ChunkProtype,
+                                new Vector3(centralChunkPosX + 16 * x, 0, centralChunkPosZ + 16 * z),
+                                Quaternion.identity, this.transform));
+                        _chunks[pos].name = "Chunk" + _chunks[pos].transform.position;
+                        
+                    }
+                    else
+                    {
+                      if ((int)_chunks[pos].transform.position.x != centralChunkPosX + 16 * x ||
+                            (int)_chunks[pos].transform.position.z != centralChunkPosZ + 16 * z)
+                        {
+                            Destroy(_chunks[pos].gameObject, 0.1f);
+                           _chunks[pos] = Instantiate(ChunkProtype,
+                                new Vector3(centralChunkPosX + 16 * x, 0, centralChunkPosZ + 16 * z),
+                                Quaternion.identity, this.transform);
+                            _chunks[pos].name = "Chunk" + _chunks[pos].transform.position;
+                        }
+                    }
                 }
-                if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y)))
+                if ((x == z) || ((x < 0) && (x == -z)) || ((x > 0) && (x == 1 - z)))
                 {
                     t = dx;
-                    dx = -dy;
-                    dy = t;
+                    dx = -dz;
+                    dz = t;
                 }
                 x += dx;
-                y += dy;
+                z += dz;
+            }
+                
+
             }
 
-            Debug.Log(_chunks.ToArray());
+            
 
 
             
             
             
-        }
+        
     }
 }

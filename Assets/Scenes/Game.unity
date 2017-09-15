@@ -182,7 +182,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 3
+      value: 34
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
       propertyPath: m_LocalPosition.y
@@ -260,7 +260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumberOfChunks: 0
   Seed: 0
-  ChunkViewDistance: 2
+  ChunkViewDistance: 1
   ChunkProtype: {fileID: 114851982060708472, guid: 7ab7556b61864234b8379b9234e9d84f,
     type: 2}
 --- !u!4 &2085306050

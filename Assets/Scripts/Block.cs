@@ -20,7 +20,7 @@ namespace Assets.Scripts
     /// <summary>
     /// Position in 3D space
     /// </summary>
-    public class Position
+    public struct Position
     {
         public int X;
         public int Y;

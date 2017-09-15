@@ -107,6 +107,11 @@ namespace Assets.Scripts
           
         }
 
+        public short GetBlockAtPosition(Position position)
+        {
+            return _chunkBlocks[position.X, position.Y, position.Z];
+        }
+
         void PlaceBlock(byte x, byte y, byte z, short blockId)
         {
             for (byte i = 0; i < 6; i++)
@@ -121,7 +126,7 @@ namespace Assets.Scripts
             } 
         }
 
-        public short GetNeighborForSide(byte x, byte y, byte z, BlockSide side)
+        private short GetNeighborForSide(byte x, byte y, byte z, BlockSide side)
         {
             Position offsetToCheck = _offsets[(int)side];
             Position neighborPosition = new Position(x + offsetToCheck.X, y + offsetToCheck.Y, z + offsetToCheck.Z);
@@ -160,7 +165,7 @@ namespace Assets.Scripts
             
         }
 
-        void UpdateMesh()
+        private void UpdateMesh()
         {
             _mesh.Clear();
             _mesh.vertices = _vertices.ToArray();
