@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace Assets.Scripts
 {
-    
+
     public class World : MonoBehaviour
     {
 
@@ -16,7 +17,7 @@ namespace Assets.Scripts
 
         private GameObject _player;
 
-        private Dictionary<Position,Chunk> _chunks;
+        private Dictionary<Position, Chunk> _chunks;
 
         public byte ChunkViewDistance;
 
@@ -26,26 +27,23 @@ namespace Assets.Scripts
 
         private Position _lastCentralChunkPosition;
         // Use this for initialization
-        void Start ()
-        { 
-           
+        void Start()
+        {
+
             if (Seed == 0)
                 Seed = Random.Range(100000, 999999);
 
             _player = GameObject.Find("FPSController");
-            _player.transform.position = new Vector3(Random.Range(-16000, 16000), 129 ,Random.Range(-16000, 16000));           
+            _player.transform.position = new Vector3(Random.Range(-16000, 16000), 129, Random.Range(-16000, 16000));
             _lastPlayerPosition = new Position((int)_player.transform.position.x, (int)_player.transform.position.y, (int)_player.transform.position.z);
             _chunks = new Dictionary<Position, Chunk>();
 
-            _lastPlayerPosition.X = (int)_player.transform.position.x;
-            _lastPlayerPosition.Y = (int)_player.transform.position.y;
-            _lastPlayerPosition.Z = (int)_player.transform.position.z;
 
             _lastCentralChunkPosition = new Position(-1, -1, -1);
 
             int centralChunkPosX = CalculateChunkStartPosition((int)_lastPlayerPosition.X);
             int centralChunkPosZ = CalculateChunkStartPosition((int)_lastPlayerPosition.Z);
- 
+
             if (ShouldGenerateChunks(centralChunkPosX, centralChunkPosZ))
                 GenerateChunks(centralChunkPosX, centralChunkPosZ);
 
@@ -55,18 +53,16 @@ namespace Assets.Scripts
         {
             while (playerPositionOnAxis % 16 != 0)
             {
-                if (playerPositionOnAxis > 0)
-                    playerPositionOnAxis--;
-                else if (playerPositionOnAxis < 0)
-                    playerPositionOnAxis++;
+                playerPositionOnAxis--;
             }
             return playerPositionOnAxis;
         }
 
         // Update is called once per frame
-        void Update () {
+        void Update()
+        {
             if (_lastPlayerPosition.X != (int)_player.transform.position.x ||
-                
+
                 _lastPlayerPosition.Z != (int)_player.transform.position.z)
             {
                 _lastPlayerPosition.X = (int)_player.transform.position.x;
@@ -79,9 +75,9 @@ namespace Assets.Scripts
                 if (ShouldGenerateChunks(centralChunkPosX, centralChunkPosZ))
                 {
                     GenerateChunks(centralChunkPosX, centralChunkPosZ);
-                   
+
                 }
-                   
+
             }
         }
 
@@ -89,7 +85,7 @@ namespace Assets.Scripts
 
         bool ShouldGenerateChunks(int centralChunkPosX, int centralChunkPosZ)
         {
-                
+
             if (_lastCentralChunkPosition.X != centralChunkPosX || _lastCentralChunkPosition.Z != centralChunkPosZ)
             {
                 _lastCentralChunkPosition = new Position(centralChunkPosX, 0, centralChunkPosX);
@@ -107,10 +103,10 @@ namespace Assets.Scripts
             dz = -1;
             int totalChunkViewDistance = ChunkViewDistance * 2 + 1;
             int t = totalChunkViewDistance;
-            
+
             int maxI = t * t;
             for (int i = 0; i < maxI; i++)
-            {
+            {        
                 if ((-totalChunkViewDistance / 2 <= x) && (x <= totalChunkViewDistance / 2) && (-totalChunkViewDistance / 2 <= z) && (z <= totalChunkViewDistance / 2))
                 {
                     Position pos = new Position(x, 0, z);
@@ -120,19 +116,19 @@ namespace Assets.Scripts
                             Instantiate(ChunkProtype,
                                 new Vector3(centralChunkPosX + 16 * x, 0, centralChunkPosZ + 16 * z),
                                 Quaternion.identity, this.transform));
-                        _chunks[pos].name = "Chunk" + _chunks[pos].transform.position;
-                        
+                        _chunks[pos].name = "Chunk" + _chunks[pos].transform.position;                       
                     }
                     else
                     {
-                      if ((int)_chunks[pos].transform.position.x != centralChunkPosX + 16 * x ||
+                        if ((int)_chunks[pos].transform.position.x != centralChunkPosX + 16 * x ||
                             (int)_chunks[pos].transform.position.z != centralChunkPosZ + 16 * z)
                         {
                             Destroy(_chunks[pos].gameObject, 0.1f);
-                           _chunks[pos] = Instantiate(ChunkProtype,
+                            _chunks[pos] = Instantiate(ChunkProtype,
                                 new Vector3(centralChunkPosX + 16 * x, 0, centralChunkPosZ + 16 * z),
                                 Quaternion.identity, this.transform);
                             _chunks[pos].name = "Chunk" + _chunks[pos].transform.position;
+                           
                         }
                     }
                 }
@@ -145,16 +141,9 @@ namespace Assets.Scripts
                 x += dx;
                 z += dz;
             }
-                
 
-            }
+        }
 
-            
-
-
-            
-            
-            
-        
     }
+
 }
